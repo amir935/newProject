@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b66156eb-761a-483f-a19c-356ccc83ba7c" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<kafka:producer-config name="Apache_Kafka_Producer_configuration" doc:name="Apache Kafka Producer configuration" doc:id="7dfdec1a-ecaf-448a-aa94-fbe049ae8e06" >
+		<kafka:producer-plaintext-connection >
+			<kafka:bootstrap-servers >
+				<kafka:bootstrap-server value="localhost:9092" />
+			</kafka:bootstrap-servers>
+		</kafka:producer-plaintext-connection>
+	</kafka:producer-config>
+	<kafka:consumer-config name="Apache_Kafka_Consumer_configuration" doc:name="Apache Kafka Consumer configuration" doc:id="55b15596-46e9-40b1-8139-f0a1f2826b3b" >
+		<kafka:consumer-plaintext-connection>
+			<kafka:bootstrap-servers >
+				<kafka:bootstrap-server value="localhost:9092" />
+			</kafka:bootstrap-servers>
+			<kafka:topic-patterns >
+				<kafka:topic-pattern value="TestTopic2" />
+			</kafka:topic-patterns>
+		</kafka:consumer-plaintext-connection>
+	</kafka:consumer-config>
+	<flow name="helloFlow" doc:id="057f0e06-aa1e-4b22-b44c-f186f692ea34" >
+		<http:listener doc:name="Listener" doc:id="218d3252-d9ab-4a70-902d-2db918e44c19" config-ref="HTTP_Listener_config" path="/hello"/>
+		<ee:transform doc:name="Transform Message" doc:id="3586d5e9-3507-4fb4-9c99-9cb04d46dc55" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+"hello world"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="helloFlow1" doc:id="610f238d-a67b-46f0-a14a-de12e1e5f6c6" >
+		<http:listener doc:name="Listener" doc:id="db525530-eaf7-41d7-8538-dac2d1220c19" config-ref="HTTP_Listener_config" path="kafka"/>
+		<kafka:publish doc:name="Publish" doc:id="b88a55b2-7e9c-4974-9215-e270788df4f6" config-ref="Apache_Kafka_Producer_configuration" topic="TestTopic2">
+			<kafka:message ><![CDATA[#["hello world"]]]></kafka:message>
+		</kafka:publish>
+		<ee:transform doc:name="Transform Message" doc:id="68eb46fb-6be4-4c35-b236-367029dec4e2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="helloFlow3" doc:id="c1b6c839-15ef-41c8-8070-ab7cd047ee45" >
+		<http:listener doc:name="Listener" doc:id="02d0f789-fc09-498a-a7d3-150b141392a0" config-ref="HTTP_Listener_config" path="consume"/>
+		<kafka:consume doc:name="Consume" doc:id="40172bdd-4b96-4126-8230-c5b75ee0c82c" config-ref="Apache_Kafka_Consumer_configuration"/>
+	</flow>
+	<flow name="helloFlow2" doc:id="acd1a20c-8f5e-47b2-853f-7b5133a6b240" initialState="started">
+		<kafka:message-listener doc:name="Message listener" doc:id="6a9c7375-a1b5-4471-bc4c-08f1e3c02060" config-ref="Apache_Kafka_Consumer_configuration"/>
+		<logger level="INFO" doc:name="Logger" doc:id="255f858c-c90b-4033-bf6b-707a62742156" message="#[payload]"/>
+	</flow>
+</mule>
