@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8415d500-479c-4b89-acdc-a759e7858ebf" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="1fda3219-30d4-4b27-a0c3-d401523a2c31" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="world" />
+	</db:config>
+	<flow name="dbFlow" doc:id="78f5c576-d003-41fb-9d0b-f67edb7f684c" >
+		<http:listener doc:name="Listener" doc:id="1436d239-576e-46f9-8aa3-44054f566ca7" config-ref="HTTP_Listener_config" path="/p"/>
+		<db:select doc:name="Select" doc:id="df139e77-82ab-444f-a275-ffcada25bb89" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from city]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="45e11891-bfee-41bc-9665-d39fcc5b786b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dbFlow1" doc:id="c0e4f78f-99cf-47e5-9a70-c6162ff249fc" >
+		<http:listener doc:name="Listener" doc:id="918b84b8-76dd-4f90-af48-0c83d34ad778" config-ref="HTTP_Listener_config" path="/batch"/>
+		<logger level="INFO" doc:name="Logger" doc:id="1e07e680-5da0-471a-9b57-43a6facf0d48" message="started"/>
+		<ee:transform doc:name="Transform Message" doc:id="3132a4c0-694c-41db-874e-3e4d1935d8b0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="dbBatch_Job" doc:id="7742d3b4-8e71-4e84-ba2b-583a2c1df35f" schedulingStrategy="ROUND_ROBIN" blockSize="10">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="be9c9bac-cb3d-4fe0-882b-540b6883bd11" >
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="4b521f12-a397-4379-82e2-127f67bc7795" size="2">
+						<ee:transform doc:name="Transform Message" doc:id="020b8ca2-37ec-4fc1-9b4c-fec0f7c8b02e" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="fe459b7a-c7ab-4445-8c2e-154c098ac491" message="#[payload]" />
+					</batch:aggregator>
+				</batch:step>
+				<batch:step name="Batch_Step2" doc:id="7de1c160-667e-4f31-8ca9-476fff83ac8b" >
+					<logger level="INFO" doc:name="Logger" doc:id="0e2cd5a7-f5ea-41ed-a5fe-b32b86f3074c" message="#[payload]"/>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+		<batch:job jobName="dbBatch_Job1" doc:id="f2d7be46-8ac3-4df4-a35c-639e7673d096" >
+			<batch:process-records >
+				<batch:step name="Batch_Step1" doc:id="4c950608-b6e8-48e2-b957-1bb4d1526189" >
+					<logger level="INFO" doc:name="Logger" doc:id="44eb862e-ff7d-45de-833c-c31edc49e3cc" message="#[payload]"/>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+	<flow name="dbFlow2" doc:id="73c9bcdf-8476-4286-abdc-3373c2814676" >
+		<http:listener doc:name="Listener" doc:id="0d183637-8495-4a59-9e81-59768c215851" config-ref="HTTP_Listener_config" path="round"/>
+		<round-robin doc:name="Round Robin" doc:id="0c6bf395-e85f-4e54-8684-c22d78bad8ae" >
+			<route >
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;1]" doc:name="Set Payload" doc:id="501b8b92-938c-4f8b-ae3a-ceb5e9384260" />
+			</route>
+			<route >
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;2]" doc:name="Set Payload" doc:id="08be831f-fbb0-457b-818f-074cb9d83b64" />
+			</route>
+			<route >
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;3]" doc:name="Set Payload" doc:id="ad2a5f6c-eecd-4657-b8af-bfc31d7fe60f" />
+			</route>
+		</round-robin>
+	</flow>
+</mule>
