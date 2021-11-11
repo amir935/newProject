@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b66156eb-761a-483f-a19c-356ccc83ba7c" >
 		<http:listener-connection host="0.0.0.0" port="8082" />
 	</http:listener-config>
@@ -55,7 +57,7 @@ payload]]></ee:set-payload>
 		<http:listener doc:name="Listener" doc:id="02d0f789-fc09-498a-a7d3-150b141392a0" config-ref="HTTP_Listener_config" path="consume"/>
 		<kafka:consume doc:name="Consume" doc:id="40172bdd-4b96-4126-8230-c5b75ee0c82c" config-ref="Apache_Kafka_Consumer_configuration"/>
 	</flow>
-	<flow name="helloFlow2" doc:id="acd1a20c-8f5e-47b2-853f-7b5133a6b240" initialState="started">
+	<flow name="helloFlow2" doc:id="acd1a20c-8f5e-47b2-853f-7b5133a6b240" initialState="stopped">
 		<kafka:message-listener doc:name="Message listener" doc:id="6a9c7375-a1b5-4471-bc4c-08f1e3c02060" config-ref="Apache_Kafka_Consumer_configuration"/>
 		<logger level="INFO" doc:name="Logger" doc:id="255f858c-c90b-4033-bf6b-707a62742156" message="#[payload]"/>
 	</flow>

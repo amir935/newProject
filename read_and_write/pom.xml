@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mycompany</groupId>
-	<artifactId>hello</artifactId>
+	<artifactId>read_and_write</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>mule-application</packaging>
 
-	<name>hello</name>
+	<name>read_and_write</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,36 +44,6 @@
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-sockets-connector</artifactId>
 			<version>1.2.2</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.mulesoft.connectors</groupId>
-			<artifactId>mule-kafka-connector</artifactId>
-			<version>4.6.1</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-db-connector</artifactId>
-			<version>1.10.4</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.mulesoft.connectors</groupId>
-			<artifactId>mule-salesforce-connector</artifactId>
-			<version>10.12.4</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-jms-connector</artifactId>
-			<version>1.7.5</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-vm-connector</artifactId>
-			<version>2.0.0</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
